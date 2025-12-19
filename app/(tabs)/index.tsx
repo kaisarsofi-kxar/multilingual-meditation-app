@@ -63,7 +63,7 @@ export default function HomeScreen() {
       </ThemedView>
 
       <ThemedView style={styles.section}>
-        <View style={styles.statsContainer}>
+        <View style={styles.statsContainer} className="bg-red-500">
           {todayStats.map((stat) => (
             <View
               key={stat.id}
