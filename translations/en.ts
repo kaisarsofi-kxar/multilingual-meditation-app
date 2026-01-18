@@ -153,4 +153,10 @@ export default {
   stressReliefVideo: "Stress Relief",
   bodyScanVideo: "Body Scan",
   focusMeditationVideo: "Focus Meditation",
+  // Video Player Translations
+  buffering: "Buffering...",
+  playbackSpeed: "Playback Speed",
+  loop: "Loop",
+  on: "On",
+  off: "Off",
 };
