@@ -1,10 +1,11 @@
-import { StyleSheet, ScrollView, TouchableOpacity, View } from "react-native";
-import { ThemedView } from "@/components/themed-view";
+import { LanguageSwitcher } from "@/components/language-switcher";
 import { ThemedText } from "@/components/themed-text";
-import { useTranslation } from "@/hooks/use-translation";
+import { ThemedView } from "@/components/themed-view";
 import { IconSymbol } from "@/components/ui/icon-symbol";
 import { useColorScheme } from "@/hooks/use-color-scheme";
-import { LanguageSwitcher } from "@/components/language-switcher";
+import { useTranslation } from "@/hooks/use-translation";
+import { router } from "expo-router";
+import { ScrollView, StyleSheet, TouchableOpacity, View } from "react-native";
 
 const settingsItems = [
   { id: 1, title: "notifications", icon: "bell.fill", hasArrow: true },
@@ -94,6 +95,7 @@ export default function ProfileScreen() {
             colorScheme === "dark" && styles.achievementCardDark,
           ]}
           activeOpacity={0.8}
+          onPress={() => router.push("/(tabs)/achievements" as any)}
         >
           <IconSymbol name="trophy.fill" size={32} color="#FFD700" />
           <View style={styles.achievementContent}>
@@ -104,6 +106,7 @@ export default function ProfileScreen() {
               {t("achievementsDesc")}
             </ThemedText>
           </View>
+          <IconSymbol name="chevron.right" size={20} color="#687076" />
         </TouchableOpacity>
       </ThemedView>
     </ScrollView>
