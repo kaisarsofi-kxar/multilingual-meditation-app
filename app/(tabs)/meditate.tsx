@@ -1,9 +1,12 @@
-import { StyleSheet, ScrollView, TouchableOpacity, View } from "react-native";
-import { ThemedView } from "@/components/themed-view";
+import { BreathingExercise } from "@/components/breathing-exercise";
+import { MeditationTimer } from "@/components/meditation-timer";
 import { ThemedText } from "@/components/themed-text";
-import { useTranslation } from "@/hooks/use-translation";
+import { ThemedView } from "@/components/themed-view";
 import { IconSymbol } from "@/components/ui/icon-symbol";
 import { useColorScheme } from "@/hooks/use-color-scheme";
+import { useTranslation } from "@/hooks/use-translation";
+import { useState } from "react";
+import { ScrollView, StyleSheet, TouchableOpacity, View } from "react-native";
 
 const meditationSessions = [
   {
@@ -36,9 +39,29 @@ const categories = [
 export default function MeditateScreen() {
   const { t } = useTranslation();
   const colorScheme = useColorScheme();
+  const [timerVisible, setTimerVisible] = useState(false);
+  const [breathingVisible, setBreathingVisible] = useState(false);
+  const [selectedSession, setSelectedSession] = useState<{
+    title: string;
+    duration: number;
+  } | null>(null);
+
+  const handleSessionPress = (session: typeof meditationSessions[0]) => {
+    if (session.title === "breathingExercise") {
+      setBreathingVisible(true);
+    } else {
+      const duration = parseInt(session.duration.split(" ")[0]);
+      setSelectedSession({
+        title: t(session.title),
+        duration: duration,
+      });
+      setTimerVisible(true);
+    }
+  };
 
   return (
-    <ScrollView style={styles.container}>
+    <>
+      <ScrollView style={styles.container}>
       <ThemedView style={styles.header}>
         <ThemedText type="title" style={styles.headerTitle}>
           {t("meditate")}
@@ -61,6 +84,7 @@ export default function MeditateScreen() {
                 colorScheme === "dark" && styles.sessionCardDark,
               ]}
               activeOpacity={0.7}
+              onPress={() => handleSessionPress(session)}
             >
               <View
                 style={[
@@ -161,6 +185,22 @@ export default function MeditateScreen() {
         </TouchableOpacity>
       </ThemedView>
     </ScrollView>
+
+    <MeditationTimer
+      visible={timerVisible}
+      onClose={() => {
+        setTimerVisible(false);
+        setSelectedSession(null);
+      }}
+      defaultDuration={selectedSession?.duration}
+      sessionTitle={selectedSession?.title}
+    />
+
+    <BreathingExercise
+      visible={breathingVisible}
+      onClose={() => setBreathingVisible(false)}
+    />
+    </>
   );
 }
 

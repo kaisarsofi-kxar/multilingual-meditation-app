@@ -1,9 +1,11 @@
-import { StyleSheet, ScrollView, TouchableOpacity, View } from "react-native";
-import { ThemedView } from "@/components/themed-view";
 import { ThemedText } from "@/components/themed-text";
-import { useTranslation } from "@/hooks/use-translation";
+import { ThemedView } from "@/components/themed-view";
 import { IconSymbol } from "@/components/ui/icon-symbol";
 import { useColorScheme } from "@/hooks/use-color-scheme";
+import { useTranslation } from "@/hooks/use-translation";
+import { useProgressStore } from "@/store/progressStore";
+import { useEffect } from "react";
+import { ScrollView, StyleSheet, TouchableOpacity, View } from "react-native";
 
 const playlists = [
   {
@@ -45,6 +47,49 @@ const recentSessions = [
 export default function LibraryScreen() {
   const { t } = useTranslation();
   const colorScheme = useColorScheme();
+  const totalSessions = useProgressStore((state) => state.totalSessions);
+  const totalTimeMinutes = useProgressStore((state) => state.totalTimeMinutes);
+  const currentStreak = useProgressStore((state) => state.currentStreak);
+  const sessions = useProgressStore((state) => state.sessions);
+  const initialize = useProgressStore((state) => state.initialize);
+
+  useEffect(() => {
+    initialize();
+  }, [initialize]);
+
+  const formatTotalTime = (minutes: number) => {
+    if (minutes < 60) return `${minutes} min`;
+    const hours = Math.floor(minutes / 60);
+    const mins = minutes % 60;
+    return mins > 0 ? `${hours}h ${mins}m` : `${hours}h`;
+  };
+
+  const recentSessions = sessions
+    .slice()
+    .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
+    .slice(0, 3)
+    .map((session, index) => {
+      const date = new Date(session.date);
+      const today = new Date();
+      const yesterday = new Date(today);
+      yesterday.setDate(yesterday.getDate() - 1);
+
+      let dateLabel = "";
+      if (date.toDateString() === today.toDateString()) {
+        dateLabel = t("today");
+      } else if (date.toDateString() === yesterday.toDateString()) {
+        dateLabel = t("yesterday");
+      } else {
+        dateLabel = date.toLocaleDateString();
+      }
+
+      return {
+        id: session.id,
+        title: session.title,
+        date: dateLabel,
+        duration: `${session.duration} min`,
+      };
+    });
 
   return (
     <ScrollView style={styles.container}>
@@ -102,7 +147,8 @@ export default function LibraryScreen() {
           {t("recentSessions")}
         </ThemedText>
         <View style={styles.recentContainer}>
-          {recentSessions.map((session) => (
+          {recentSessions.length > 0 ? (
+            recentSessions.map((session) => (
             <TouchableOpacity
               key={session.id}
               style={[
@@ -129,7 +175,17 @@ export default function LibraryScreen() {
                 </View>
               </View>
             </TouchableOpacity>
-          ))}
+            ))
+          ) : (
+            <View style={styles.emptyState}>
+              <ThemedText style={styles.emptyStateText}>
+                {t("noSessionsYet")}
+              </ThemedText>
+              <ThemedText style={styles.emptyStateDesc}>
+                {t("noSessionsYetDesc")}
+              </ThemedText>
+            </View>
+          )}
         </View>
       </ThemedView>
 
@@ -145,7 +201,7 @@ export default function LibraryScreen() {
             ]}
           >
             <ThemedText type="title" style={styles.statNumber}>
-              24
+              {totalSessions}
             </ThemedText>
             <ThemedText style={styles.statLabel}>
               {t("totalSessions")}
@@ -158,7 +214,7 @@ export default function LibraryScreen() {
             ]}
           >
             <ThemedText type="title" style={styles.statNumber}>
-              12h
+              {formatTotalTime(totalTimeMinutes)}
             </ThemedText>
             <ThemedText style={styles.statLabel}>{t("totalTime")}</ThemedText>
           </View>
@@ -169,7 +225,7 @@ export default function LibraryScreen() {
             ]}
           >
             <ThemedText type="title" style={styles.statNumber}>
-              7
+              {currentStreak}
             </ThemedText>
             <ThemedText style={styles.statLabel}>{t("dayStreak")}</ThemedText>
           </View>
@@ -295,6 +351,21 @@ const styles = StyleSheet.create({
   statLabel: {
     fontSize: 12,
     opacity: 0.7,
+    textAlign: "center",
+  },
+  emptyState: {
+    padding: 32,
+    alignItems: "center",
+  },
+  emptyStateText: {
+    fontSize: 16,
+    fontWeight: "600",
+    marginBottom: 8,
+    opacity: 0.7,
+  },
+  emptyStateDesc: {
+    fontSize: 14,
+    opacity: 0.5,
     textAlign: "center",
   },
 });

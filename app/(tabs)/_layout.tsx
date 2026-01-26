@@ -80,6 +80,12 @@ export default function TabLayout() {
           ),
         }}
       />
+      <Tabs.Screen
+        name="achievements"
+        options={{
+          href: null, // Hide from tab bar, accessible via profile
+        }}
+      />
     </Tabs>
   );
 }

@@ -1,11 +1,13 @@
-import { StyleSheet, ScrollView, TouchableOpacity, View } from "react-native";
+import { LanguageSwitcher } from "@/components/language-switcher";
 import { ThemedText } from "@/components/themed-text";
 import { ThemedView } from "@/components/themed-view";
-import { useTranslation } from "@/hooks/use-translation";
 import { IconSymbol } from "@/components/ui/icon-symbol";
 import { useColorScheme } from "@/hooks/use-color-scheme";
-import { LanguageSwitcher } from "@/components/language-switcher";
+import { useTranslation } from "@/hooks/use-translation";
+import { useProgressStore } from "@/store/progressStore";
 import { router } from "expo-router";
+import { useEffect } from "react";
+import { ScrollView, StyleSheet, TouchableOpacity, View } from "react-native";
 
 const quickActions = [
   {
@@ -38,15 +40,23 @@ const quickActions = [
   },
 ];
 
-const todayStats = [
-  { id: 1, label: "todayMinutes", value: "15", unit: "min" },
-  { id: 2, label: "sessions", value: "3", unit: "" },
-  { id: 3, label: "streak", value: "7", unit: "days" },
-];
-
 export default function HomeScreen() {
   const { t } = useTranslation();
   const colorScheme = useColorScheme();
+  const getTodayMinutes = useProgressStore((state) => state.getTodayMinutes);
+  const getTodaySessions = useProgressStore((state) => state.getTodaySessions);
+  const currentStreak = useProgressStore((state) => state.currentStreak);
+  const initialize = useProgressStore((state) => state.initialize);
+
+  useEffect(() => {
+    initialize();
+  }, [initialize]);
+
+  const todayStats = [
+    { id: 1, label: "todayMinutes", value: getTodayMinutes().toString(), unit: "min" },
+    { id: 2, label: "sessions", value: getTodaySessions().toString(), unit: "" },
+    { id: 3, label: "streak", value: currentStreak.toString(), unit: "days" },
+  ];
 
   return (
     <ScrollView style={styles.container}>

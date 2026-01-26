@@ -1,4 +1,3 @@
-import "../global.css";
 import {
   DarkTheme,
   DefaultTheme,
@@ -8,10 +7,12 @@ import { Stack } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import { useEffect, useState } from "react";
 import "react-native-reanimated";
+import "../global.css";
 
+import { LanguageSelectionScreen } from "@/components/language-selection-screen";
 import { useColorScheme } from "@/hooks/use-color-scheme";
 import { useLanguageStore } from "@/store/languageStore";
-import { LanguageSelectionScreen } from "@/components/language-selection-screen";
+import { useProgressStore } from "@/store/progressStore";
 
 export const unstable_settings = {
   anchor: "(tabs)",
@@ -20,15 +21,17 @@ export const unstable_settings = {
 export default function RootLayout() {
   const colorScheme = useColorScheme();
   const { hasSelectedLanguage, initializeLanguage } = useLanguageStore();
+  const initializeProgress = useProgressStore((state) => state.initialize);
   const [isInitializing, setIsInitializing] = useState(true);
 
   useEffect(() => {
     const init = async () => {
       await initializeLanguage();
+      await initializeProgress();
       setIsInitializing(false);
     };
     init();
-  }, [initializeLanguage]);
+  }, [initializeLanguage, initializeProgress]);
 
   if (isInitializing) {
     return null;
