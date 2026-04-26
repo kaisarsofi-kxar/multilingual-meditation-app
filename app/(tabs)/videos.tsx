@@ -6,6 +6,18 @@ import { useTranslation } from "@/hooks/use-translation";
 import { IconSymbol } from "@/components/ui/icon-symbol";
 import { useColorScheme } from "@/hooks/use-color-scheme";
 import { VideoPlayer } from "@/components/video-player";
+import { YouTubeVideoPlayer } from "@/components/youtube-video-player";
+
+function getYouTubeVideoId(url: string): string | null {
+  const watchMatch = url.match(/(?:youtube\.com\/watch\?v=)([a-zA-Z0-9_-]+)/);
+  if (watchMatch) return watchMatch[1];
+  const shortMatch = url.match(/(?:youtu\.be\/)([a-zA-Z0-9_-]+)/);
+  return shortMatch ? shortMatch[1] : null;
+}
+
+function isYouTubeUrl(url: string): boolean {
+  return url.includes("youtube.com") || url.includes("youtu.be");
+}
 
 const videoCategories = [
   {
@@ -76,6 +88,14 @@ const featuredVideos = [
     views: "15.3K",
     thumbnail: "water.waves",
     url: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4",
+  },
+  {
+    id: 4,
+    title: "guidedMeditationVideo",
+    duration: "—",
+    views: "—",
+    thumbnail: "play.rectangle.fill",
+    url: "https://www.youtube.com/watch?v=aWqxQSSR_uo",
   },
 ];
 
@@ -271,17 +291,29 @@ export default function VideosScreen() {
           setSelectedVideo(null);
         }}
       >
-        {selectedVideo && (
-          <VideoPlayer
-            key={selectedVideo.url}
-            uri={selectedVideo.url}
-            title={selectedVideo.title}
-            onClose={() => {
-              setPlayerVisible(false);
-              setSelectedVideo(null);
-            }}
-          />
-        )}
+        {selectedVideo && (() => {
+          const youtubeId = getYouTubeVideoId(selectedVideo.url);
+          const isYouTube = isYouTubeUrl(selectedVideo.url) && youtubeId;
+          const close = () => {
+            setPlayerVisible(false);
+            setSelectedVideo(null);
+          };
+          return isYouTube ? (
+            <YouTubeVideoPlayer
+              key={selectedVideo.url}
+              videoId={youtubeId!}
+              title={selectedVideo.title}
+              onClose={close}
+            />
+          ) : (
+            <VideoPlayer
+              key={selectedVideo.url}
+              uri={selectedVideo.url}
+              title={selectedVideo.title}
+              onClose={close}
+            />
+          );
+        })()}
       </Modal>
     </ScrollView>
   );

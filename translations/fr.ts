@@ -154,4 +154,5 @@ export default {
   stressReliefVideo: "Soulagement du Stress",
   bodyScanVideo: "Balayage Corporel",
   focusMeditationVideo: "Méditation de Concentration",
+  guidedMeditationVideo: "Méditation Guidée",
 };

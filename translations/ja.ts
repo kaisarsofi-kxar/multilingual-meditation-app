@@ -151,4 +151,5 @@ export default {
   stressReliefVideo: "ストレス解消",
   bodyScanVideo: "ボディスキャン",
   focusMeditationVideo: "集中瞑想",
+  guidedMeditationVideo: "ガイド付き瞑想",
 };
