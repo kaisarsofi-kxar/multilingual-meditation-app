@@ -144,4 +144,5 @@ export default {
   stressReliefVideo: "缓解压力",
   bodyScanVideo: "身体扫描",
   focusMeditationVideo: "专注冥想",
+  guidedMeditationVideo: "引导式冥想",
 };

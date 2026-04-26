@@ -154,4 +154,5 @@ export default {
   stressReliefVideo: "Снятие Стресса",
   bodyScanVideo: "Сканирование Тела",
   focusMeditationVideo: "Медитация Фокуса",
+  guidedMeditationVideo: "Управляемая Медитация",
 };

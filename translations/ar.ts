@@ -148,4 +148,5 @@ export default {
   stressReliefVideo: "تخفيف التوتر",
   bodyScanVideo: "فحص الجسم",
   focusMeditationVideo: "تأمل التركيز",
+  guidedMeditationVideo: "تأمل موجه",
 };
