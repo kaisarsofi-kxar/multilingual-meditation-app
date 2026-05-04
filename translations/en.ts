@@ -210,4 +210,31 @@ export default {
   customDuration: "Custom Duration",
   noSessionsYet: "No sessions yet",
   noSessionsYetDesc: "Start meditating to see your sessions here",
+
+  errorTitle: "Something went wrong",
+  errorMessage:
+    "The app hit an unexpected error. You can try again. If this keeps happening, restart the app.",
+  tryAgain: "Try again",
+
+  aboutTitle: "About",
+  aboutBody:
+    "Numa is a calm-first companion for meditation, breathwork, and mindfulness — offline-first with your progress stored only on this device.",
+  versionLabel: "Version {version}",
+
+  privacyExportDesc:
+    "Export a JSON copy of your sessions, journal, favorites, and stats. Only share this file if you trust the recipient.",
+  exportMyData: "Export my data",
+  clearAllData: "Erase local data",
+  clearAllDataConfirm: "Erase all data?",
+  clearAllDataWarning:
+    "This removes sessions, journal, favorites, and achievement progress from this device. This cannot be undone.",
+  dataCleared: "Local data has been erased.",
+  exportFailed: "Could not share the export. Please try again.",
+
+  hapticFeedback: "Haptic feedback",
+  keepScreenAwake: "Keep screen on during sessions",
+  soundSettingsDesc: "Haptics and display while you practice",
+  comingSoon: "Coming soon",
+  notificationsDesc: "We will add gentle reminders in a future update.",
+  remindersDesc: "Scheduled practice reminders are planned for a future update.",
 };

@@ -5,38 +5,45 @@ import { IconSymbol } from "@/components/ui/icon-symbol";
 import { useColorScheme } from "@/hooks/use-color-scheme";
 import { useTranslation } from "@/hooks/use-translation";
 import { useProgressStore } from "@/store/progressStore";
-import { router } from "expo-router";
+import { type Href, router } from "expo-router";
 import { useEffect } from "react";
 import { ScrollView, StyleSheet, TouchableOpacity, View } from "react-native";
+import type { SymbolViewProps } from "expo-symbols";
 
-const quickActions = [
+const quickActions: {
+  id: number;
+  title: string;
+  icon: SymbolViewProps["name"];
+  color: string;
+  route: Href;
+}[] = [
   {
     id: 1,
     title: "startMeditation",
     icon: "play.circle.fill",
     color: "#4CAF50",
-    route: "meditate",
+    route: "/(tabs)/meditate",
   },
   {
     id: 2,
     title: "browseLibrary",
     icon: "book.fill",
     color: "#2196F3",
-    route: "library",
+    route: "/(tabs)/library",
   },
   {
     id: 3,
     title: "music",
     icon: "music.note",
     color: "#9C27B0",
-    route: "music",
+    route: "/(tabs)/music",
   },
   {
     id: 4,
     title: "videos",
     icon: "play.rectangle.fill",
     color: "#E91E63",
-    route: "videos",
+    route: "/(tabs)/videos",
   },
 ];
 
@@ -108,22 +115,14 @@ export default function HomeScreen() {
                 colorScheme === "dark" && styles.actionCardDark,
               ]}
               onPress={() => {
-                if (action.route === "meditate") {
-                  router.push("/(tabs)/meditate" as any);
-                } else if (action.route === "library") {
-                  router.push("/(tabs)/library" as any);
-                } else if (action.route === "music") {
-                  router.push("/(tabs)/music" as any);
-                } else if (action.route === "videos") {
-                  router.push("/(tabs)/videos" as any);
-                }
+                router.push(action.route);
               }}
               activeOpacity={0.7}
             >
               <View
                 style={[styles.actionIcon, { backgroundColor: action.color }]}
               >
-                <IconSymbol name={action.icon as any} size={28} color="#fff" />
+                <IconSymbol name={action.icon} size={28} color="#fff" />
               </View>
               <ThemedText style={styles.actionTitle}>
                 {t(action.title)}
@@ -144,7 +143,7 @@ export default function HomeScreen() {
           ]}
           activeOpacity={0.8}
           onPress={() => {
-            router.push("/(tabs)/meditate" as any);
+            router.push("/(tabs)/meditate");
           }}
         >
           <View style={styles.recommendedContent}>
