@@ -4,20 +4,38 @@ import { ThemedView } from "@/components/themed-view";
 import { IconSymbol } from "@/components/ui/icon-symbol";
 import { useColorScheme } from "@/hooks/use-color-scheme";
 import { useTranslation } from "@/hooks/use-translation";
-import { router } from "expo-router";
+import { type Href, router } from "expo-router";
 import { ScrollView, StyleSheet, TouchableOpacity, View } from "react-native";
+import type { SymbolViewProps } from "expo-symbols";
 
-const settingsItems = [
-  { id: 1, title: "notifications", icon: "bell.fill", hasArrow: true },
-  { id: 2, title: "reminders", icon: "clock.fill", hasArrow: true },
+type SettingsRow = {
+  id: number;
+  title: string;
+  icon: SymbolViewProps["name"];
+  href: Href;
+};
+
+const settingsItems: SettingsRow[] = [
+  {
+    id: 1,
+    title: "notifications",
+    icon: "bell.fill",
+    href: "/notifications",
+  },
+  {
+    id: 2,
+    title: "reminders",
+    icon: "clock.fill",
+    href: "/reminders",
+  },
   {
     id: 3,
     title: "soundSettings",
     icon: "speaker.wave.2.fill",
-    hasArrow: true,
+    href: "/sound-settings",
   },
-  { id: 4, title: "privacy", icon: "lock.fill", hasArrow: true },
-  { id: 5, title: "about", icon: "info.circle.fill", hasArrow: true },
+  { id: 4, title: "privacy", icon: "lock.fill", href: "/privacy" },
+  { id: 5, title: "about", icon: "info.circle.fill", href: "/about" },
 ];
 
 export default function ProfileScreen() {
@@ -67,22 +85,19 @@ export default function ProfileScreen() {
                 colorScheme === "dark" && styles.settingsCardDark,
               ]}
               activeOpacity={0.7}
+              onPress={() => {
+                router.push(item.href);
+              }}
             >
               <View style={styles.settingsContent}>
                 <View style={styles.settingsIcon}>
-                  <IconSymbol
-                    name={item.icon as any}
-                    size={24}
-                    color="#0a7ea4"
-                  />
+                  <IconSymbol name={item.icon} size={24} color="#0a7ea4" />
                 </View>
                 <ThemedText style={styles.settingsTitle}>
                   {t(item.title)}
                 </ThemedText>
               </View>
-              {item.hasArrow && (
-                <IconSymbol name="chevron.right" size={20} color="#687076" />
-              )}
+              <IconSymbol name="chevron.right" size={20} color="#687076" />
             </TouchableOpacity>
           ))}
         </View>
@@ -95,7 +110,7 @@ export default function ProfileScreen() {
             colorScheme === "dark" && styles.achievementCardDark,
           ]}
           activeOpacity={0.8}
-          onPress={() => router.push("/(tabs)/achievements" as any)}
+          onPress={() => router.push("/(tabs)/achievements")}
         >
           <IconSymbol name="trophy.fill" size={32} color="#FFD700" />
           <View style={styles.achievementContent}>

@@ -1,7 +1,8 @@
-import { useColorScheme } from "@/hooks/use-color-scheme";
 import { useTranslation } from "@/hooks/use-translation";
 import { useProgressStore } from "@/store/progressStore";
+import { useSettingsStore } from "@/store/settingsStore";
 import * as Haptics from "expo-haptics";
+import * as KeepAwake from "expo-keep-awake";
 import { useEffect, useRef, useState } from "react";
 import {
     Animated,
@@ -33,14 +34,27 @@ export function BreathingExercise({
   onClose,
 }: BreathingExerciseProps) {
   const { t } = useTranslation();
-  const colorScheme = useColorScheme();
   const [isRunning, setIsRunning] = useState(false);
   const [phase, setPhase] = useState<BreathingPhase>("inhale");
   const [cycle, setCycle] = useState(0);
   const [timeRemaining, setTimeRemaining] = useState(DEFAULT_BREATHING_PATTERN.inhale);
   const scaleAnim = useRef(new Animated.Value(1)).current;
-  const intervalRef = useRef<NodeJS.Timeout | null>(null);
+  const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const addSession = useProgressStore((state) => state.addSession);
+  const keepScreenAwakeDuringSessions = useSettingsStore(
+    (s) => s.keepScreenAwakeDuringSessions
+  );
+
+  useEffect(() => {
+    if (!keepScreenAwakeDuringSessions || !isRunning) {
+      return;
+    }
+    const tag = "breathing-exercise";
+    void KeepAwake.activateKeepAwakeAsync(tag);
+    return () => {
+      void KeepAwake.deactivateKeepAwake(tag);
+    };
+  }, [isRunning, keepScreenAwakeDuringSessions]);
 
   useEffect(() => {
     if (visible) {
@@ -95,7 +109,9 @@ export function BreathingExercise({
         }),
       ]).start();
     } else {
-      scaleAnim.setValue(scaleAnim._value);
+      scaleAnim.stopAnimation((value) => {
+        scaleAnim.setValue(value);
+      });
     }
   }, [phase, scaleAnim]);
 
@@ -124,7 +140,9 @@ export function BreathingExercise({
     }
 
     setPhase(nextPhase);
-    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    if (useSettingsStore.getState().hapticsEnabled) {
+      void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    }
     return nextDuration;
   };
 
@@ -138,12 +156,16 @@ export function BreathingExercise({
 
   const handleStart = () => {
     setIsRunning(true);
-    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    if (useSettingsStore.getState().hapticsEnabled) {
+      void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    }
   };
 
   const handlePause = () => {
     setIsRunning(false);
-    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    if (useSettingsStore.getState().hapticsEnabled) {
+      void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    }
   };
 
   const handleComplete = async () => {

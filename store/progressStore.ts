@@ -40,6 +40,8 @@ interface ProgressState {
   getTodaySessions: () => number;
   checkAchievements: () => Promise<void>;
   initialize: () => Promise<void>;
+  buildExportSnapshot: () => ProgressExportSnapshot;
+  clearAllLocalData: () => Promise<void>;
 }
 
 export interface JournalEntry {
@@ -49,6 +51,21 @@ export interface JournalEntry {
   sessionTitle: string;
   notes: string;
   mood: "great" | "good" | "okay" | "difficult";
+}
+
+export interface ProgressExportSnapshot {
+  exportVersion: 1;
+  exportedAt: string;
+  sessions: MeditationSession[];
+  journalEntries: JournalEntry[];
+  favorites: string[];
+  achievements: Achievement[];
+  stats: {
+    totalSessions: number;
+    totalTimeMinutes: number;
+    currentStreak: number;
+    lastMeditationDate: string | null;
+  };
 }
 
 const STORAGE_KEYS = {
@@ -355,5 +372,47 @@ export const useProgressStore = create<ProgressState>((set, get) => ({
     } catch (error) {
       console.error("Error initializing progress store:", error);
     }
+  },
+
+  buildExportSnapshot: () => {
+    const state = get();
+    return {
+      exportVersion: 1,
+      exportedAt: new Date().toISOString(),
+      sessions: state.sessions,
+      journalEntries: state.journalEntries,
+      favorites: state.favorites,
+      achievements: state.achievements,
+      stats: {
+        totalSessions: state.totalSessions,
+        totalTimeMinutes: state.totalTimeMinutes,
+        currentStreak: state.currentStreak,
+        lastMeditationDate: state.lastMeditationDate,
+      },
+    };
+  },
+
+  clearAllLocalData: async () => {
+    await AsyncStorage.multiRemove([
+      STORAGE_KEYS.SESSIONS,
+      STORAGE_KEYS.ACHIEVEMENTS,
+      STORAGE_KEYS.FAVORITES,
+      STORAGE_KEYS.JOURNAL,
+      STORAGE_KEYS.LAST_DATE,
+    ]);
+    set({
+      sessions: [],
+      totalSessions: 0,
+      totalTimeMinutes: 0,
+      currentStreak: 0,
+      lastMeditationDate: null,
+      achievements: INITIAL_ACHIEVEMENTS.map((a) => ({
+        ...a,
+        unlocked: false,
+        unlockedAt: undefined,
+      })),
+      favorites: [],
+      journalEntries: [],
+    });
   },
 }));

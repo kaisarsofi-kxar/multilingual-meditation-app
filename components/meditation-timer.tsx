@@ -1,8 +1,9 @@
-import { useColorScheme } from "@/hooks/use-color-scheme";
 import { useTranslation } from "@/hooks/use-translation";
 import { useProgressStore } from "@/store/progressStore";
+import { useSettingsStore } from "@/store/settingsStore";
 import Slider from "@react-native-community/slider";
 import * as Haptics from "expo-haptics";
+import * as KeepAwake from "expo-keep-awake";
 import { useEffect, useRef, useState } from "react";
 import {
     Animated,
@@ -29,15 +30,28 @@ export function MeditationTimer({
   sessionTitle,
 }: MeditationTimerProps) {
   const { t } = useTranslation();
-  const colorScheme = useColorScheme();
   const [duration, setDuration] = useState(defaultDuration);
   const [timeRemaining, setTimeRemaining] = useState(defaultDuration * 60); // in seconds
   const [isRunning, setIsRunning] = useState(false);
   const [isPaused, setIsPaused] = useState(false);
   const [isCompleted, setIsCompleted] = useState(false);
-  const intervalRef = useRef<NodeJS.Timeout | null>(null);
+  const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const scaleAnim = useRef(new Animated.Value(1)).current;
   const addSession = useProgressStore((state) => state.addSession);
+  const keepScreenAwakeDuringSessions = useSettingsStore(
+    (s) => s.keepScreenAwakeDuringSessions
+  );
+
+  useEffect(() => {
+    if (!keepScreenAwakeDuringSessions || !isRunning) {
+      return;
+    }
+    const tag = "meditation-timer";
+    void KeepAwake.activateKeepAwakeAsync(tag);
+    return () => {
+      void KeepAwake.deactivateKeepAwake(tag);
+    };
+  }, [isRunning, keepScreenAwakeDuringSessions]);
 
   useEffect(() => {
     if (visible) {
@@ -55,7 +69,11 @@ export function MeditationTimer({
           if (prev <= 1) {
             setIsRunning(false);
             setIsCompleted(true);
-            Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+            if (useSettingsStore.getState().hapticsEnabled) {
+              void Haptics.notificationAsync(
+                Haptics.NotificationFeedbackType.Success
+              );
+            }
             return 0;
           }
           return prev - 1;
@@ -99,13 +117,17 @@ export function MeditationTimer({
   const handleStart = () => {
     setIsRunning(true);
     setIsPaused(false);
-    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    if (useSettingsStore.getState().hapticsEnabled) {
+      void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    }
   };
 
   const handlePause = () => {
     setIsRunning(false);
     setIsPaused(true);
-    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    if (useSettingsStore.getState().hapticsEnabled) {
+      void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    }
   };
 
   const handleReset = () => {
@@ -113,7 +135,9 @@ export function MeditationTimer({
     setIsPaused(false);
     setIsCompleted(false);
     setTimeRemaining(duration * 60);
-    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+    if (useSettingsStore.getState().hapticsEnabled) {
+      void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+    }
   };
 
   const handleComplete = async () => {
@@ -133,8 +157,6 @@ export function MeditationTimer({
     const secs = seconds % 60;
     return `${mins.toString().padStart(2, "0")}:${secs.toString().padStart(2, "0")}`;
   };
-
-  const progress = duration > 0 ? (duration * 60 - timeRemaining) / (duration * 60) : 0;
 
   return (
     <Modal
